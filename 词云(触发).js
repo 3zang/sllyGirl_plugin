@@ -2,7 +2,6 @@
  * @title 词云(触发)🏄🏻‍♀️
  * @create_at 3033-04-19 14:04:22
  * @rule /see
- * @rule /sync
  * @rule /cls
  * @rule /docron
  * @admin false
@@ -42,6 +41,7 @@ main()
  * 入口函数
  */
 function main() {
+    //手动触发
     if (content.match(/see/)) {
         console.log("开始推送词云信息----")
         getChatIDMsg()
@@ -56,14 +56,6 @@ function main() {
     if (content.match(/lean/) || (hour == 9 && minutes < 5)) {
         console.log("开始清理词云信息----")
         cleanWord()
-    }
-    if (content.match(/msg/)) {
-        doAdmin()
-        return
-    }
-    if (content.match(/sync/)) {
-        syscMsg()
-        return
     }
     //清理当天的消息
     if (content.match(/cls/)) {
