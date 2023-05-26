@@ -4,8 +4,8 @@
         {
             "cron": "",
             "id": "ip_change.js",
-            "title": "IPchangge",
-            "description": "饿了么ck提交与查询,需安装qinglong模块",
+            "title": "ip_change",
+            "description": "本机IP变化查询",
             "public": true,
             "icon": "https://joeschmoe.io/api/v1/random?t=287144439",
             "version": "v1.0.5",
