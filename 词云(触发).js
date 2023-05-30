@@ -9,7 +9,7 @@
  * @rule /lean
  * @description 发 /see 手动触发 ,每日会自动清理前一天的记录
  * @author 三藏
- * @cron 1,32 18,20 * * 1-5
+ * @cron 1,32 18,20 * * *
  * @priority 12
  * @version v1.0.1
  */
