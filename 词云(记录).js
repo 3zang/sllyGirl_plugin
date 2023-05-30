@@ -3,15 +3,14 @@
  * @create_at 3033-04-19 14:04:23
  * @rule 词云统计
  * @rule raw ([\s\S]*)
- * @rule wc
  * @rule /ban ?
  * @rule /todo
  * @description 🐒 在群 发 /todo 开启该群 消息 记录  
  * @platform wx qq
- * @author 三藏
+ * @author 佚名
  * @priority 5
  * @disable false
- * @version v1.0.0
+ * @version v1.0.1
  */
 const sillyGirl = new SillyGirl()
 const s = sender
@@ -96,6 +95,7 @@ function saveMsg() {
             content = content.replace(banKeys[i])
             console.log("------词云记录不存储违禁词汇: " + banKeys[i])
             s.reply("本群已禁止记录:" + banKeys[i])
+            break
         }
     }
     if (content == "undefined") {
