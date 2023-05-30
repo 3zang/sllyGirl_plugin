@@ -57,14 +57,6 @@ function main() {
         console.log("开始清理词云信息----")
         cleanWord()
     }
-    if (content.match(/msg/)) {
-        doAdmin()
-        return
-    }
-    if (content.match(/sync/)) {
-        syscMsg()
-        return
-    }
     //清理当天的消息
     if (content.match(/cls/)) {
         cleanWordToday()
