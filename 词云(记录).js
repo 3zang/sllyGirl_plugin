@@ -3,6 +3,7 @@
  * @create_at 3033-04-19 14:04:23
  * @rule 词云统计
  * @rule raw ([\s\S]*)
+ * @rule wc
  * @rule /ban ?
  * @rule /todo
  * @description 🐒 在群 发 /todo 开启该群 消息 记录  
@@ -10,7 +11,7 @@
  * @author 佚名
  * @priority 5
  * @disable false
- * @version v1.0.1
+ * @version v1.0.0
  */
 const sillyGirl = new SillyGirl()
 const s = sender
@@ -35,16 +36,15 @@ let dayKey = "_" + (new Date().getMonth() + 1) + "_" + new Date().getDate();
 init()
 
 function init() {
-    if (content.match(/ban/) != null) {
+    if (content.match(/\/ban/) != null) {
         banWords()
     }
-    if (content.match(/todo/)) {
+    if (content.match(/\/todo/)) {
         setGoupName()
     }
     if (content.match(/reply/) || content.match(/listen/)) {
         s.continue
     } else {
-
         wordCloud()
     }
 
@@ -139,6 +139,10 @@ function banWords() {
 function setGoupName() {
     const gName = new Bucket("listenGroup")
     if (chatId > 0) {
+        //QQ平台获取不到群名称,随机生成
+        if(chatName==null||chatName==""){
+            chatName=Math.random(100000)*10000
+        }
         gName.set(chatId, chatName)
         console.log("开始记录群名:" + chatId + "::" + chatName)
         s.reply("已为此群开启词云分析")
