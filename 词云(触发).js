@@ -2,6 +2,7 @@
  * @title 词云(触发)🏄🏻‍♀️
  * @create_at 3033-04-19 14:04:22
  * @rule /see
+ * @rule /sync
  * @rule /cls
  * @rule /docron
  * @admin false
@@ -10,7 +11,7 @@
  * @author 三藏
  * @cron 1,32 18,20 * * 1-5
  * @priority 12
- * @version v1.0.0
+ * @version v1.0.1
  */
 
 let storeGroup = new Bucket("listenGroup");
@@ -41,7 +42,6 @@ main()
  * 入口函数
  */
 function main() {
-    //手动触发
     if (content.match(/see/)) {
         console.log("开始推送词云信息----")
         getChatIDMsg()
@@ -56,6 +56,14 @@ function main() {
     if (content.match(/lean/) || (hour == 9 && minutes < 5)) {
         console.log("开始清理词云信息----")
         cleanWord()
+    }
+    if (content.match(/msg/)) {
+        doAdmin()
+        return
+    }
+    if (content.match(/sync/)) {
+        syscMsg()
+        return
     }
     //清理当天的消息
     if (content.match(/cls/)) {
@@ -250,10 +258,10 @@ function cleanWord() {
         let groupLast = new Bucket("group_" + chatId + pre_dayKey);
         let userDb = new Bucket("user_" + chatId + pre_dayKey)
         let keys = wc.keys().toString().split(",")
-        if (keys.length > 0) {
-            size++
-        }
-        console.log("获取到" + id + "的" + keys.length + "个数据,准备清理")
+        let groupName= storeGroup.get(chatId)
+        let tips ="获取到" +"("+ groupName+")"+chatId + "的" + keys.length + "个数据,准备清理"
+        console.log(tips)
+        s.reply(tips)
         wc.deleteAll()//删除聊天记录
         groupLast.deleteAll()//删除指针
         userDb.deleteAll()//删除发言数量统计
@@ -297,8 +305,6 @@ function getImage(groupCode, words) {
     return body
 
 }
-
-
 
 
 
