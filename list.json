@@ -3,7 +3,7 @@
     "data": [
         {
             "cron": "",
-            "id": "ip_change.js",
+            "id": "ip_change",
             "title": "ip_change",
             "description": "本机IP变化查询",
             "public": true,
@@ -21,7 +21,7 @@
         },
         {
             "cron": "",
-            "id": "抖音解析.js",
+            "id": "douYin",
             "title": "抖音短视频解析1.0",
             "description": "直接分析抖音复制的分享内容 发给机器人",
             "public": true,
