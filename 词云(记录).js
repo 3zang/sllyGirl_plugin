@@ -7,11 +7,11 @@
  * @rule /ban ?
  * @rule /todo
  * @description 🐒 在群 发 /todo 开启该群 消息 记录  
- * @platform wx qq
- * @author 佚名
+ * @platform wx qq pgm
+ * @author 三藏
  * @priority 5
  * @disable false
- * @version v1.0.0
+ * @version v1.0.3
  */
 const sillyGirl = new SillyGirl()
 const s = sender
@@ -30,8 +30,16 @@ for (let i = 0; i < groupIds.length; i++) {
 let groupName = storeGroup.get(chatId);
 let userName = s.getUserName()
 let platform = s.getPlatform()
-//当天的时间
-let dayKey = "_" + (new Date().getMonth() + 1) + "_" + new Date().getDate();
+
+/**
+ *  今天
+ */
+let dayTime = new Date();//当天时间
+let month = ("0" + (dayTime.getMonth() + 1)).slice(-2);//当前月
+let curDay = ("0" + dayTime.getDate()).slice(-2); //当前天
+let dayKey = "_" + month + "_" + curDay;
+
+
 
 init()
 
@@ -44,12 +52,12 @@ function init() {
     }
     if (content.match(/reply/) || content.match(/listen/)) {
         s.continue
-    } else {
+    }
+     else {
         wordCloud()
     }
 
 }
-
 function wordCloud() {
     if (chatId != 0 && groups.includes(chatId)) {
         //xml消息
@@ -84,8 +92,10 @@ function wordCloud() {
 function saveMsg() {
     let key = "word_" + chatId + dayKey //消息记录
     let userKey = "user_" + chatId + dayKey  //用户消息数量
+    let groupSizeKey = "group_msgSize" + dayKey  //总消息大小key
     let wc = new Bucket(key)
     let uKey = new Bucket(userKey)
+    let groupLast = new Bucket(groupSizeKey);
     var now = time.now()
     const ban = new Bucket("ban_words")
     let banArray = ban.keys()
@@ -101,7 +111,9 @@ function saveMsg() {
     if (content == "undefined") {
         console.log(groupName + "-词云消息存储失败,包含违禁词: " + content)
     } else {
+        //存储消息内容
         wc.set(now.unixMilli(), content)
+        //用户发言数量
         let curIndex = uKey.get(userName)
         console.log("当前用户" + userName + "的数量--->" + curIndex + "条消息")
         if (curIndex == null) {
@@ -124,10 +136,10 @@ function banWords() {
     const ban = new Bucket("ban_words")
     var now = time.now()
     if (s.isAdmin()) {
-        word =word.replace("/ban","")
-        word=word.replace(" ","")
+        word = word.replace("/ban", "")
+        word = word.replace(" ", "")
         ban.set(word, now.unixMilli())
-        s.reply(`"`+word +` "` + " 已禁止记录.")
+        s.reply(`"` + word + ` "` + " 已禁止记录.")
     } else {
         s.reply("小叼毛,禁止操作")
     }
@@ -140,13 +152,14 @@ function setGoupName() {
     const gName = new Bucket("listenGroup")
     if (chatId > 0) {
         //QQ平台获取不到群名称,随机生成
-        if(chatName==null||chatName==""){
-            chatName=Math.random(100000)*10000
+        if (chatName == null || chatName == "") {
+            chatName = Math.random(100000) * 10000
         }
         gName.set(chatId, chatName)
         console.log("开始记录群名:" + chatId + "::" + chatName)
         s.reply("已为此群开启词云分析")
 
     }
-
 }
+
+
