@@ -288,7 +288,7 @@ function cleanWordToday() {
 function getImage(groupCode, words) {
     console.log("开始获取图片,群号:" + groupCode)
     let { body } = request({
-        url: "http://192.168.0.47:5000",
+        url: "http://webapi.fillme.ml",
         method: "post",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
