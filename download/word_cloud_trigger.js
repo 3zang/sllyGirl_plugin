@@ -8,18 +8,19 @@
  * @admin false
  * @rule /lean
  * @rule /delKey
- * @description 发 /see 手动触发 ,每日会自动清理前一天的记录
+ * @description 发 /see 手动触发 ,每日会自动清理前一天的记录  本次更新 改了一下数据结构  listenGroup 里面 按 platform 区分了, 和原有的不兼容 示例:  wx#12345678 
  * @author 三藏
- * @cron 1,32 18,20 * * *
+ * @cron 1,30 9,18 * * *
  * @priority 12
- * @version v1.0.3
+ * @version v1.0.4
  */
 
 let storeGroup = new Bucket("listenGroup");
 let groupIds = storeGroup.keys().toString().split(",")
 let groups = []
 for (let i = 0; i < groupIds.length; i++) {
-    groups.push(parseInt(groupIds[i]))
+    let id = groupIds[i]
+    groups.push(id)
 }
 let chatSurfix = "@chatroom"
 const s = sender
@@ -40,9 +41,8 @@ let preDayTime = new Date(dayTime - 24 * 60 * 60 * 1000) //前一天时间
 let preMonth = ("0" + (preDayTime.getMonth() + 1)).slice(-2); //可能是当前月 或者是上月
 let preDay = ("0" + preDayTime.getDate()).slice(-2);  //前一天
 
-
-var minutes = dayTime.getMinutes();
-var hour = dayTime.getHours()
+let hour = dayTime.getHours() < 10 ? ("0" + dayTime.getHours()) : dayTime.getHours()
+let minutes = dayTime.getMinutes() < 10 ? ("0" + dayTime.getMinutes()) : dayTime.getMinutes()
 let platform = s.getPlatform();
 let sillyGirl = new SillyGirl()
 
@@ -56,13 +56,13 @@ main()
  * 入口函数
  */
 function main() {
-    if (content.match(/see/)) {
+    if (content.match(/\/see/)) {
         console.log("开始推送词云信息----")
         getChatIDMsg()
         return
     }
     //晚上8点分析  或者手动触发
-    if (content.match(/docron/) || hour == 20) {
+    if (content.match(/\/docron/) || (hour == 18 && minutes >= 30)) {
         cronTask()
         return
     }
@@ -76,7 +76,7 @@ function main() {
         delKey()
     }
     //清理当天的消息
-    if (content.match(/cls/)) {
+    if (content.match(/\/cls/)) {
         cleanWordToday()
         return
     }
@@ -85,9 +85,12 @@ function main() {
  * 定时任务
  */
 function cronTask() {
-    console.log("定时任务监控了:" + groups.length + "个群聊")
+    console.log("定时任务监控了:" + groups.length + "个群聊:\n" + groups.toString())
     for (let i = 0; i < groups.length; i++) {
-        let chatId = groups[i]
+        let platform_chatId = groups[i]
+        let chatId = platform_chatId.toString().split("#")[1]  //# 分割 后面的为群号
+        console.log("platform_chatId--------------:" + platform_chatId)
+        let platform = platform_chatId.toString().split("#")[0]  //# 分割 前面的为平台
         let title = "#今日话题词云" + month + "月" + curDay + "日"
         let rank = "---活跃用户排行榜---"
         //发言数量
@@ -99,31 +102,33 @@ function cronTask() {
         let sendCode = chatId + chatSurfix;
         let allmsgs = []
         //群名
-        let groupName = storeGroup.get(chatId);
-        //上次的消息大小
-        let groupLast = new Bucket("group_msgSize" + dayKey)
-        let lastSize = groupLast.get(chatId)
-        let total = "本群 " + dbKeys.length + " 位朋友共产生: " + lastSize + " 条发言"
+        let groupName = storeGroup.get(groups[i]);
         const wc = new Bucket("word_" + chatId + dayKey)
         let keys = wc.keys().toString().split(",")
+        let total = "本群 " + dbKeys.length + " 位朋友共产生: " + keys.length + " 条发言"
         //组装整体消息
         let finamsg = title + "\n" + tips + "\n" + total + "\n" + rank + "\n" + rankName
-        console.log("定时匹配到了-----" + groupName + "-----群的" + keys.length + "个消息")
+        console.log("定时匹配到了-----" + groupName + "-----群的" + keys.length + "个消息" + "\n" + finamsg)
         //获取词云图片
         for (let i = keys.length; i > 0; i--) {
             let msg_1 = wc.get(keys[i])
             allmsgs.push(msg_1)
         }
-        let imgUrl = getImage(sendCode, allmsgs.toString())
-        //这里默认微信,其他平台自己换,没法分开控制
-        //发送提示
-        sillyGirl.push({ platform: "wx", userId: "", groupCode: chatId, content: finamsg })
-        //发送图片
-        sillyGirl.push({ platform: "wx", userId: "", groupCode: chatId, content: image(imgUrl) })
-        console.log("发送到群:" + groupName + "的词云分析完成!")
-        //清理消息
-        allmsgs = []
-        sleep(10000)
+        if (allmsgs.length > 1) {
+            let img = getImage(sendCode, allmsgs.toString())
+            //这里默认微信,其他平台自己换,没法分开控制
+            //发送提示
+            sillyGirl.push({ platform: platform, userId: "", groupCode: chatId, content: finamsg })
+            //发送图片
+            sillyGirl.push({ platform: platform, userId: "", groupCode: chatId, content: image(img) })
+            console.log("发送到群:" + groupName + "(" + chatId + ")" + "的词云分析完成!")
+            //清理消息
+            allmsgs = []
+            sleep(5000)
+        } else {
+            console.log(groupName + "----无新消息----")
+        }
+
     }
 
 }
@@ -140,13 +145,13 @@ function getChatIDMsg() {
     let dbKeys = db.keys().toString().split(",")
     //处理排序
     rankName = popSort(db, dbKeys)
-    let tips = "截至今天 " + hour + ":" + minutes + "分"
+    let tips = "截至今天 " + hour + ":" + minutes + " 分"
     let sendCode = chatId + chatSurfix;
     let groupSizeKey = "group_msgSize" + dayKey  //总消息大小key
     let groupLast = new Bucket(groupSizeKey);
     let allmsgs = []
     //群名
-    let groupName = storeGroup.get(chatId);
+    let groupName = storeGroup.get(platform + "#" + chatId);
     //上次的消息大小
     let lastSize = groupLast.get(chatId)
     console.log(groupName + " 群的消息总数为: " + lastSize)
@@ -216,7 +221,7 @@ function popSort(db, dbKeys) {
     }
     //处理格式
     for (let i = 0; i < userArray.length; i++) {
-        rankName += "#" + userArray[i].name + " 贡献: " + userArray[i].value + "\n"
+        rankName +=+(i+1)+". "+ "#"  +userArray[i].name + " 贡献: " + userArray[i].value + "\n"
     }
     return rankName;
 
@@ -231,8 +236,12 @@ function popSort(db, dbKeys) {
  * 清理数据库(昨日)
  */
 function cleanWord() {
+    s.reply("开始清理词云数据...")
+    let msg = ""
     for (let i = 0; i < groups.length; i++) {
-        let chatId = groups[i]
+        //let pre_dayKey = "_06_03";
+        let platform_chatId = groups[i]
+        let chatId = platform_chatId.toString().split("#")[1]  //# 分割 后面的为群号
         // 3 个key
         let wdKey = "word_" + chatId + pre_dayKey //词云key
         let groupSizeKey = "group_msgSize" + pre_dayKey  //总消息大小key
@@ -242,16 +251,18 @@ function cleanWord() {
         let groupLast = new Bucket(groupSizeKey);
         let userDb = new Bucket(userKey)
         let keys = wc.keys().toString().split(",")
-        let groupName = storeGroup.get(chatId)
-        let tips = "获取到" + "(" + groupName + ")" + chatId + "的" + keys.length + "个数据,准备清理"
+        let groupName = storeGroup.get(platform_chatId)
+        let tips = "" + "(" + groupName + ")" + chatId + "的" + keys.length + "个数据" + pre_dayKey + ",清理完成\n"
         console.log(tips)
-        s.reply(tips + "\n" + "wdKey: " + wdKey + "\n" + "gSizeKey: " + groupSizeKey + "\n" + "userKey: " + userKey)
+        //s.reply(tips + "\n" + "wdKey: " + wdKey + "\n" + "gSizeKey: " + groupSizeKey + "\n" + "userKey: " + userKey)
         wc.deleteAll()//删除聊天记录
         groupLast.deleteAll()//删除指针
         userDb.deleteAll()//删除发言数量统计
         console.log("清理词云信息成功----")
-        sleep(2000)
+        msg += tips;
     }
+    s.reply(msg)
+
 }
 
 
@@ -272,11 +283,12 @@ function cleanWordToday() {
 
 /**
  * 没有合适的API地址 以下地址是我的 ,反代的 很慢
+ *  url: "http://webapi.fillme.ml",
  */
 function getImage(groupCode, words) {
     console.log("开始获取图片,群号:" + groupCode)
     let { body } = request({
-        url: "http://webapi.fillme.ml",
+        url: "http://192.168.0.47:5000",
         method: "post",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -286,7 +298,7 @@ function getImage(groupCode, words) {
 
     })
 
-    console.log("词云响应" + body)
+    console.log("词云响应 : " + body)
     return body
 
 }
