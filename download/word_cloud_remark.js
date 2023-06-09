@@ -1,4 +1,3 @@
-
 /**
  * @title 词云(记录)👨‍👩‍👧‍👧
  * @create_at 3033-04-19 14:04:23
@@ -8,7 +7,7 @@
  * @rule /ban ?
  * @rule /todo
  * @description 🐒 在群 发 /todo 开启该群 消息 记录  
- * @platform wx qq pgm
+ * @platform wx qq tg
  * @author 三藏
  * @priority 5
  * @disable false
@@ -26,7 +25,7 @@ let storeGroup = new Bucket("listenGroup");
 let groupIds = storeGroup.keys().toString().split(",")
 let groups = []
 for (let i = 0; i < groupIds.length; i++) {
-    groups.push(parseInt(groupIds[i]))
+    groups.push(parseInt(groupIds[i].split("#")[1]))
 }
 let groupName = storeGroup.get(chatId);
 let userName = s.getUserName()
@@ -54,7 +53,7 @@ function init() {
     if (content.match(/reply/) || content.match(/listen/)) {
         s.continue
     }
-     else {
+    else {
         wordCloud()
     }
 
@@ -64,6 +63,14 @@ function wordCloud() {
         //xml消息
         if (content.indexOf("<?xml version=") != -1) {
             console.log("词云收到XML类信息不保存: xml Msg")
+            return
+        }
+        if (content.match(/appmsg/)) {
+            console.log("词云匹配到转发的聊天记录,不记录")
+            return
+        }
+        if (content.match(/CQ:image/)) {
+            console.log("词云匹配到QQ表情,不保存")
             return
         }
         if (content.match(/AV/) != null) {
@@ -79,7 +86,7 @@ function wordCloud() {
             console.log("词云收到@类信息不保存: " + content)
             return
         } else {
-            //console.log("####词云收到" + chatName + "消息:" + content)
+            console.log("####词云收到" + chatName + "消息:" + content)
             saveMsg()
         }
     }
@@ -93,10 +100,8 @@ function wordCloud() {
 function saveMsg() {
     let key = "word_" + chatId + dayKey //消息记录
     let userKey = "user_" + chatId + dayKey  //用户消息数量
-    let groupSizeKey = "group_msgSize" + dayKey  //总消息大小key
     let wc = new Bucket(key)
     let uKey = new Bucket(userKey)
-    let groupLast = new Bucket(groupSizeKey);
     var now = time.now()
     const ban = new Bucket("ban_words")
     let banArray = ban.keys()
@@ -151,15 +156,16 @@ function banWords() {
  */
 function setGoupName() {
     const gName = new Bucket("listenGroup")
-    if (chatId > 0) {
+    if (chatId != 0) {
         //QQ平台获取不到群名称,随机生成
         if (chatName == null || chatName == "") {
             chatName = Math.random(100000) * 10000
         }
-        gName.set(chatId, chatName)
+        gName.set(platform + "#" + chatId, chatName)
         console.log("开始记录群名:" + chatId + "::" + chatName)
         s.reply("已为此群开启词云分析")
 
     }
 }
+
 
