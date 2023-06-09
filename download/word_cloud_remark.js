@@ -11,7 +11,7 @@
  * @author 三藏
  * @priority 5
  * @disable false
- * @version v1.0.3
+ * @version v1.0.4
  */
 const sillyGirl = new SillyGirl()
 const s = sender
