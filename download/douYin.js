@@ -2,10 +2,12 @@
  * @title 抖音解析🎥
  * @create_at 2100-02-04 12:44:49
  * @rule ^\d\.\d{2}\s[a-zA-Z]{3}:/\s.*$
+ * @rule (https?|http|ftp|file):\/\/v\.douyin\.com\/[a-zA-Z0-9]+\/?/
  * @description 🐒直接抖音复制分享连接 发给机器人 ,整段文本,
  * @author 三藏悠亚
- * @version v1.0.0
+ * @version v1.0.1
  * @priority 100
+ * @update 修复抖音解析url不匹配的问题 
  */
 const sillyGirl = new SillyGirl()
 const s = sender
