@@ -26,7 +26,7 @@
             "description": "直接分析抖音复制的分享内容 发给机器人",
             "public": true,
             "icon": "https://joeschmoe.io/api/v1/random?t=287144439",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "author": "三藏",
             "status": 0,
             "create_at": "2023-06-01 15:06:22",
