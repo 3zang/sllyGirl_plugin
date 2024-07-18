@@ -112,7 +112,7 @@
     {
       "cron": "",
       "id": "盘古续期",
-      "title": "盘古续期.0",
+      "title": "盘古续期1.0",
       "description": "本地备份(不可用)",
       "public": true,
       "icon": "https://joeschmoe.io/api/v1/random?t=287144439",
@@ -126,6 +126,24 @@
       "address": "",
       "organization": "",
       "identified": false
+    },
+    {
+    "cron": "",
+    "id": "Cool微信",
+    "title": "Cool微信1.0",
+    "description": "本地备份(不可用)",
+    "public": true,
+    "icon": "https://joeschmoe.io/api/v1/random?t=287144439",
+    "version": "v1.0.0",
+    "author": "三藏",
+    "status": 0,
+    "create_at": "2024-07-18 15:06:22",
+    "module": false,
+    "encrypt": false,
+    "on_start": false,
+    "address": "",
+    "organization": "",
+    "identified": false
     }
   ],
   "page": 1,
