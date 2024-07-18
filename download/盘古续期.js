@@ -3,18 +3,19 @@
  * @create_at 1023-05-29 19:51:26
  * @rule /xm
  * @description 🐒这个人很懒什么都没有留下。
- * @author 三藏
+ * @author 佚名
  * @version v1.0.0
  */
 let cookie = ""
+let baseUrl = "http://129.211.29.66:8000"
 check()
 
-let baseUrl="http://129.211.29.66:8000"
+
 function check() {
     //formdata
-    let reqBody = { "account": "YJL308c7b84ce51e0ed62", "logintype": "2" }
-    let login_url = baseUrl+"/api/getusers"
-    let { body } = request({
+    let reqBody = {"account": "YJL308c7b84ce51e0ed62", "logintype": "2"}
+    let login_url = baseUrl + "/api/getusers"
+    let {body} = request({
         url: login_url,
         method: "post",
         json: true,
@@ -61,9 +62,9 @@ function check() {
 }
 
 function getQrcode() {
-    let reqBody = { "id": "YJL308c7b84ce51e0ed62", "group": "dc914cfc-8672-45ac-a231-104bf34f92c8", "force": 0 }
-    let login_url = baseUrl+"/api/getqr"
-    let { body } = request({
+    let reqBody = {"id": "YJL308c7b84ce51e0ed62", "group": "dc914cfc-8672-45ac-a231-104bf34f92c8", "force": 0}
+    let login_url = baseUrl + "/api/getqr"
+    let {body} = request({
         url: login_url,
         method: "post",
         json: true,
@@ -78,9 +79,9 @@ function getQrcode() {
 }
 
 function toLogin() {
-    let reqBody = { "id": "YJL308c7b84ce51e0ed62", "type": 1 }
-    let login_url = baseUrl+"/api/ckstate"
-    let { body } = request({
+    let reqBody = {"id": "YJL308c7b84ce51e0ed62", "type": 1}
+    let login_url = baseUrl + "/api/ckstate"
+    let {body} = request({
         url: login_url,
         method: "post",
         json: true,
@@ -102,7 +103,7 @@ function toLogin() {
 
 function _login() {
 
-    let reqBody = { "km": "PGY30DAF8502360F6F0B16CB", "area": "陕西" }
+    let reqBody = {"km": "PGY30DAF8502360F6F0B16CB", "area": "陕西"}
     let login_url = "http://wl.778899qqq.cn/Login.aspx/CheckLogin"
     let body = request({
         url: login_url,
@@ -169,7 +170,7 @@ function CheckStaus(cookie) {
 function XuFei(km) {
     let check_url = "http://wl.778899qqq.cn/Topup.aspx/Xufei"
     console.log("请求COOKIE: " + cookie)
-    let reqBody = { 'txtCD': km }
+    let reqBody = {'txtCD': km}
     let body = request({
         url: check_url,
         method: "post",
